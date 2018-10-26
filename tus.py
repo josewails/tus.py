@@ -3,6 +3,7 @@ import os
 import base64
 import logging
 import argparse
+import io
 
 try:
     from urllib.parse import urlparse, urlunparse
@@ -139,7 +140,7 @@ def upload(file_obj,
 
 
 def _get_file_size(f):
-    if not f.seekable():
+    if not io.open(f.name).seekable():
         return
 
     pos = f.tell()
@@ -201,7 +202,7 @@ def resume(file_obj,
         offset = _get_offset(file_endpoint, headers=headers)
 
     if offset != 0:
-        if not file_obj.seekable():
+        if not io.open(file_obj.name).seekable():
             raise Exception("file is not seekable")
 
         file_obj.seek(offset)
@@ -215,7 +216,7 @@ def resume(file_obj,
         offset += len(data)
         data = file_obj.read(chunk_size)
 
-    if not file_obj.seekable():
+    if not io.open(file_obj.name).seekable():
         if headers is None:
             headers = {}
         else:
